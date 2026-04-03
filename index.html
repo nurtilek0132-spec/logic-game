@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логикалык Викторина</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .info-label {
+            font-size: 0.8em;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .timer.warning {
+            color: #ff6b6b;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f9f9ff;
+            transform: translateX(5px);
+        }
+
+        .option-btn .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option-btn.correct {
+            border-color: #51cf66;
+            background: #d3f9d8;
+        }
+
+        .option-btn.correct .letter {
+            background: #51cf66;
+        }
+
+        .option-btn.incorrect {
+            border-color: #ff6b6b;
+            background: #ffe0e0;
+        }
+
+        .option-btn.incorrect .letter {
+            background: #ff6b6b;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: #51cf66;
+            background: #d3f9d8;
+        }
+
+        .answer-input.incorrect {
+            border-color: #ff6b6b;
+            background: #ffe0e0;
+        }
+
+        .submit-btn {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d3f9d8;
+            color: #2d6a32;
+            border-left: 4px solid #51cf66;
+        }
+
+        .feedback.incorrect {
+            background: #ffe0e0;
+            color: #7d2020;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .hint {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .hint.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-next {
+            background: #667eea;
+            color: white;
+            display: none;
+        }
+
+        .btn-next:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next.show {
+            display: block;
+        }
+
+        .btn-hint {
+            background: #ffc107;
+            color: #333;
+            display: none;
+            flex: 0.5;
+        }
+
+        .btn-hint:hover {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+
+        .btn-hint.show {
+            display: block;
+        }
+
+        .btn-hint.used {
+            background: #ddd;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-restart {
+            background: #667eea;
+            color: white;
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn-restart:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-restart.show {
+            display: block;
+        }
+
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 4em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .results-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .score-detail {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .score-detail p {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .emoji {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .question-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .option-btn {
+                padding: 12px 15px;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .submit-btn {
+                width: 100%;
+            }
+
+            .info-bar {
+                gap: 10px;
+            }
+
+            .info-item {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Логикалык Викторина</h1>
+        <p class="subtitle">Жугум жуугу! Логикалык суроолорго жооп бер!</p>
+
+        <div class="info-bar">
+            <div class="info-item">
+                <div class="info-label">Суроо</div>
+                <div class="info-value"><span id="current-question">1</span>/<span id="total-questions">10</span></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Упай</div>
+                <div class="info-value"><span id="score">0</span>/<span id="max-score">10</span></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Убакыт</div>
+                <div class="info-value timer" id="timer">⏱ <span id="time">600</span>с</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+
+        <div class="question-container" id="question-container">
+            <div class="question-number" id="question-number"></div>
+            <div class="question-type" id="question-type"></div>
+            <div class="question-text" id="question-text"></div>
+            
+            <!-- Вариянттар берилген суроолор -->
+            <ul class="options" id="options"></ul>
+
+            <!-- Текст кирүүсү берилген суроолор -->
+            <div class="input-area" id="input-area" style="display: none;">
+                <input type="text" class="answer-input" id="answer-input" placeholder="Жоопту жаз..." autocomplete="off">
+                <button class="submit-btn" id="submit-btn">Жөнөт</button>
+            </div>
+
+            <button class="btn btn-hint" id="hint-btn">💡 Намүнө</button>
+            <div class="hint" id="hint"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div class="results-container" id="results-container">
+            <div class="emoji" id="emoji">😊</div>
+            <div class="final-score" id="final-score"></div>
+            <div class="results-text" id="results-text"></div>
+            <div class="score-detail">
+                <p id="score-detail"></p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-next" id="next-btn">➜ Кийинки суроо</button>
+        </div>
+
+        <button class="btn btn-restart" id="restart-btn">🔄 Кайра баштоо</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                type: "varkymdar",
+                question:"Бир бөлмөдө 3 өчүргүч, башка бөлмөдө 3 лампа бар. Бир гана жолу кирип текшерип, кайсы өчүргүч кайсы лампага тиешелүү экенин кантип аныктайсың?",
+                options:["Лампаларды жогору-төмөнкүлөрүнө карап","Жылуулук менен текшерүүнүн жолу менен","Өчүргүчтөрдүн салмагын өлчөп","Электр сынай куралын колдонуп"],
+                answer:1,
+                hint:"Лампаларды өчүргүчтөр менен ачып-жаап, кайсынын жылуу экенин текшер"
+            },
+            {
+                type: "varkymdar",
+                question:"Эгер 1 = 5, 2 = 25, 3 = 325, 4 = 4325 болсо, анда 5 канча?",
+                options:["54325","43250","5432","1"],
+                answer:3,
+                hint:"Жогорудагы санды эмес, номерин карап көр"
+            },
+            {
+                type: "varkymdar",
+                question:"Бир адам 8 күн уктабай жашай алат. Кантип?",
+                options:["Ойлоп булмасы менен","Кофе ичип жүргөнүбүрүнүн жолу менен","Түнкүсүн уктап","Иштин көп болуусу менен"],
+                answer:2,
+                hint:"Адам күн сайын нерсе кылат"
+            },
+            {
+                type: "varkymdar",
+                question:"Сууда түшпөй туруп кантип суу ичесиң?",
+                options:["Жанаң суу каймасын","Стакандан","Төө эш менен","Сайнында"],
+                answer:1,
+                hint:"Суу коюп алган сак"
+            },
+            {
+                type: "varkymdar",
+                question:"Бир үй-бүлөдө 5 уул бар, ар биринин бир эжеси бар. Жалпы канча бала?",
+                options:["5","10","6","11"],
+                answer:2,
+                hint:"Жалпы канча адам? Эжелер да ошол"
+            },
+            {
+                type: "varkymdar",
+                question:"Эгер сен жарышта экинчи адамды өтүп кетсең, кайсы орунга чыгасың?",
+                options:["Биринчи","Экинчи","Үчүнчү","Акыркы"],
+                answer:1,
+                hint:"Сөз жүргүчүлөрүнүн сапын ойла"
+            },
+            {
+                type: "varkymdar",
+                question:"Менин башым бар, бирок мээм жок. Бул эмне?",
+                options:["Баш","Сарымсак","Жыптардын башы","Минутактар"],
+                answer:1,
+                hint:"Асычка колдонулган заттын сарысы"
+            },
+            {
+                type: "varkymdar",
+                question:"Кайсы айда 28 күн бар?",
+                options:["Февраль гана","Баса айда эмес","Баарында","Февраль жана март"],
+                answer:2,
+                hint:"Баса айда канча күн бар? Ойла"
+            },
+            {
+                type: "varkymdar",
+                question:"Бир нерсе бар: аны канчалык көбүрөөк алсаң, ошончолук чоң болот. Бул эмне?",
+                options:["Суу","Тешик","Уй","Боор"],
+                answer:1,
+                hint:"Жерде казып чыккан нерсе"
+            },
+            {
+                type: "varkymdar",
+                question:"Сен караңгы бөлмөгө кирдиң. Бир шам, бир керосин лампа жана газ плитасы бар. Бир ширеңке менен эмнени биринчи жагасың?",
+                options:["Шамды","Керосин лампасын","Газ плитасын","Ширеңкени"],
+                answer:3,
+                hint:"Энергия булагы эмес, жыпка жана октороо"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let timeLeft = 600;
+        let timerInterval = null;
+        let hintUsed = false;
+
+        const totalQuestions = questions.length;
+
+        document.getElementById('max-score').textContent = totalQuestions;
+        document.getElementById('total-questions').textContent = totalQuestions;
+
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            timeLeft = 600;
+            document.getElementById('score').textContent = 0;
+            document.getElementById('question-container').style.display = 'block';
+            document.getElementById('results-container').classList.remove('show');
+            document.getElementById('restart-btn').classList.remove('show');
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                endQuiz();
+                return;
+            }
+
+            answered = false;
+            hintUsed = false;
+            const question = questions[currentQuestion];
+
+            document.getElementById('question-number').textContent = `Суроо ${currentQuestion + 1}/${totalQuestions}`;
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('hint').classList.remove('show');
+            document.getElementById('next-btn').classList.remove('show');
+            document.getElementById('hint-btn').classList.remove('used');
+            document.getElementById('hint-btn').classList.add('show');
+
+            // Суроо типин көрсөт
+            const typeLabel = question.type === 'varkymdar' ? '📋 Вариянттуу' : '✍️ Жазуу';
+            document.getElementById('question-type').textContent = typeLabel;
+
+            // Вариянттуу суроо
+            if (question.type === 'varkymdar') {
+                document.getElementById('options').style.display = 'flex';
+                document.getElementById('input-area').style.display = 'none';
+
+                const optionsContainer = document.getElementById('options');
+                optionsContainer.innerHTML = '';
+
+                question.options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerHTML = `<span class="letter">${String.fromCharCode(65 + index)}</span> ${option}`;
+                    btn.onclick = () => selectOption(index, btn);
+                    li.appendChild(btn);
+                    optionsContainer.appendChild(li);
+                });
+            }
+
+            updateProgress();
+        }
+
+        function selectOption(index, button) {
+            if (answered) return;
+
+            answered = true;
+            const question = questions[currentQuestion];
+            const isCorrect = index === question.answer;
+
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+                button.classList.add('correct');
+                showFeedback('✓ Туура жооп! Браво!', 'correct');
+            } else {
+                button.classList.add('incorrect');
+                const correctBtn = Array.from(allButtons)[question.answer];
+                correctBtn.classList.add('correct');
+                showFeedback(`✗ Каталуу жооп. Туура жооп: ${question.options[question.answer]}`, 'incorrect');
+            }
+
+            document.getElementById('hint-btn').classList.remove('show');
+            document.getElementById('next-btn').classList.add('show');
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const input = document.getElementById('answer-input');
+            const userAnswer = input.value.trim().toLowerCase();
+            const question = questions[currentQuestion];
+            const correctAnswer = question.answer.toLowerCase();
+
+            answered = true;
+
+            const isCorrect = userAnswer === correctAnswer || 
+                            userAnswer.includes(correctAnswer) ||
+                            correctAnswer.includes(userAnswer);
+
+            input.disabled = true;
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('hint-btn').classList.remove('show');
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+                input.classList.add('correct');
+                showFeedback('✓ Туура жооп! Браво!', 'correct');
+            } else {
+                input.classList.add('incorrect');
+                showFeedback(`✗ Каталуу жооп. Туура жооп: "${question.answer}"`, 'incorrect');
+            }
+
+            document.getElementById('next-btn').classList.add('show');
+        }
+
+        function showHint() {
+            if (!answered && !hintUsed) {
+                hintUsed = true;
+                const hint = document.getElementById('hint');
+                hint.textContent = questions[currentQuestion].hint;
+                hint.classList.add('show');
+                document.getElementById('hint-btn').classList.add('used');
+                document.getElementById('hint-btn').disabled = true;
+            }
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.classList.add('show', type);
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const timerElement = document.getElementById('timer');
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `⏱ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 30) {
+                timerElement.classList.add('warning');
+            } else {
+                timerElement.classList.remove('warning');
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('next-btn').classList.remove('show');
+
+            const percentage = (score / totalQuestions) * 100;
+            let emoji = '😢';
+            let resultText = '';
+
+            if (percentage === 100) {
+                emoji = '🏆';
+                resultText = 'Кемчиликсиз натыйжа! Сиз чыныгы логикалык гений!';
+            } else if (percentage >= 80) {
+                emoji = '😍';
+                resultText = 'Супер! Сиз абзалдыксыз, бирок дагы жакшартса болот!';
+            } else if (percentage >= 60) {
+                emoji = '😊';
+                resultText = 'Жакшы натыйжа! Дагы практика кылсаңыз, нарк болот!';
+            } else if (percentage >= 40) {
+                emoji = '😐';
+                resultText = 'Орточолук. Логикалык ойлоо сөз жүргүчүңүздү өнүктүрүңүз!';
+            } else {
+                emoji = '😞';
+                resultText = 'Дагы чалданчы натыйжа. Кайра аракет кылыңыз!';
+            }
+
+            document.getElementById('emoji').textContent = emoji;
+            document.getElementById('final-score').textContent = `${score}/${totalQuestions}`;
+            document.getElementById('results-text').textContent = resultText;
+            document.getElementById('score-detail').textContent = `Сиз ${percentage.toFixed(0)}% туура жооп бердиңиз`;
+
+            document.getElementById('results-container').classList.add('show');
+            document.getElementById('restart-btn').classList.add('show');
+        }
+
+        document.getElementById('submit-btn').addEventListener('click', checkAnswer);
+        document.getElementById('answer-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !answered) {
+                checkAnswer();
+            }
+        });
+        document.getElementById('hint-btn').addEventListener('click', showHint);
+        document.getElementById('next-btn').addEventListener('click', nextQuestion);
+        document.getElementById('restart-btn').addEventListener('click', initQuiz);
+
+        initQuiz();
+    </script>
+</body>
+</html>
